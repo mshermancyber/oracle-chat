@@ -1,0 +1,53 @@
+[oracle]
+# Authentication mode: api | claude_code | bridge | custom
+auth_mode = api
+
+# Anthropic API key (mode: api)
+api_key =
+
+# Claude Code binary path (mode: claude_code)
+claude_binary = claude
+
+# Bridge gateway IP (mode: bridge)
+bridge_ip = 127.0.0.1
+
+# Custom OpenAI-compatible gateway (mode: custom)
+# Works with Ollama, ChatGPT, Gemini, Grok, DeepSeek, Groq, etc.
+custom_api_url =
+custom_api_key =
+custom_model =
+
+# Model and response settings
+default_model = claude-sonnet-4-6
+max_tokens = 4096
+system_prompt =
+response_length = normal
+response_format =
+thinking_effort =
+persona =
+
+# Display
+theme = dark
+compact_mode = False
+font_size = 14
+typewriter_mode = False
+show_raw_md = False
+sidebar_sort = recent
+
+# Behavior
+auto_continue = True
+auto_retry = True
+auto_title = True
+auto_model = False
+notify_sound = False
+show_thinking = True
+focus_mode = False
+
+# Web search (requires a SearXNG instance)
+searxng_url =
+
+# Favorites (comma-separated model IDs)
+favorite_models =
+
+# Active project name
+active_project =
