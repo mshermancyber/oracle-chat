@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+*.egg
+dist/
+build/
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Oracle data (user-specific, not distributable)
+.key.env
+*.db
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Backups (local only)
+backups/
+
+# Old releases (keep in releases/ but don't track archives)
+releases/**/*.tar.gz
+releases/**/*.7z
+releases/Oracle_v0.*
