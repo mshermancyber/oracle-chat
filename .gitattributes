@@ -1,0 +1,7 @@
+# Tell GitHub Linguist this is a Python project
+*.py linguist-language=Python
+*.md linguist-documentation
+*.svg linguist-generated
+LICENSE linguist-documentation
+*.json linguist-data
+
