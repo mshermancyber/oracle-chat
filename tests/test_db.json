@@ -1,0 +1,69 @@
+{
+  "description": "Sample test cases for Oracle Chat database operations",
+  "tests": [
+    {
+      "name": "create_and_list_chat",
+      "steps": ["create_chat('Test Chat', 'claude-sonnet-4-6')", "list_chats()"],
+      "expected": "Chat appears in list with correct title and model"
+    },
+    {
+      "name": "add_and_retrieve_messages",
+      "steps": [
+        "create_chat('Test', 'model')",
+        "add_message(chat_id, 'user', 'Hello')",
+        "add_message(chat_id, 'assistant', 'Hi there')",
+        "get_messages(chat_id)"
+      ],
+      "expected": "Two messages returned in order, roles match"
+    },
+    {
+      "name": "pin_unpin_chat",
+      "steps": ["create_chat('Pinnable', 'model')", "toggle_pin(chat_id)", "list_chats()"],
+      "expected": "Pinned chat appears first in list"
+    },
+    {
+      "name": "bookmark_message",
+      "steps": ["add_message(...)", "toggle_bookmark(msg_id)", "get_bookmarked_messages()"],
+      "expected": "Message appears in bookmarked list"
+    },
+    {
+      "name": "delete_messages_from",
+      "steps": [
+        "add 4 messages",
+        "delete_messages_from(chat_id, msg3.id)",
+        "get_messages(chat_id)"
+      ],
+      "expected": "Only first 2 messages remain"
+    },
+    {
+      "name": "archive_excludes_from_list",
+      "steps": ["create_chat(...)", "set_archived(chat_id, 1)", "list_chats()"],
+      "expected": "Archived chat not in default list, appears in list_archived_chats()"
+    },
+    {
+      "name": "checkpoint_save_restore",
+      "steps": [
+        "add 3 messages",
+        "save_checkpoint(chat_id, 'v1')",
+        "add 2 more messages",
+        "restore_checkpoint(chat_id, 'v1')"
+      ],
+      "expected": "Only original 3 messages remain after restore"
+    },
+    {
+      "name": "empty_bulk_operations",
+      "steps": ["bulk_archive([])", "bulk_delete([])"],
+      "expected": "No error raised"
+    },
+    {
+      "name": "search_like_escaping",
+      "input": {"query": "100%"},
+      "expected": "Only messages containing literal '100%' are matched, not all messages"
+    },
+    {
+      "name": "duplicate_chat",
+      "steps": ["create_chat with 3 messages", "duplicate_chat(chat_id)"],
+      "expected": "New chat has same 3 messages, different chat_id"
+    }
+  ]
+}

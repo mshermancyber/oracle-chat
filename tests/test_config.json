@@ -1,0 +1,67 @@
+{
+  "description": "Sample test cases for Oracle Chat configuration",
+  "tests": [
+    {
+      "name": "default_settings_load",
+      "description": "Loading settings from a fresh install returns valid defaults",
+      "expected": {
+        "default_model": "claude-sonnet-4-6",
+        "max_tokens": 4096,
+        "auth_mode": "api",
+        "compact_mode": false,
+        "theme": "dark",
+        "auto_continue": true,
+        "auto_retry": true,
+        "auto_title": true
+      }
+    },
+    {
+      "name": "custom_gateway_ollama",
+      "description": "Custom gateway with Ollama preset",
+      "input": {
+        "auth_mode": "custom",
+        "custom_api_url": "http://localhost:11434",
+        "custom_api_key": "",
+        "custom_model": "llama3.1"
+      },
+      "expected": {
+        "configured": true
+      }
+    },
+    {
+      "name": "custom_gateway_openai",
+      "description": "Custom gateway with OpenAI preset",
+      "input": {
+        "auth_mode": "custom",
+        "custom_api_url": "https://api.openai.com",
+        "custom_api_key": "sk-test-key",
+        "custom_model": "gpt-4o"
+      },
+      "expected": {
+        "configured": true
+      }
+    },
+    {
+      "name": "api_mode_requires_key",
+      "description": "API mode is not configured without a key",
+      "input": {
+        "auth_mode": "api",
+        "api_key": ""
+      },
+      "expected": {
+        "configured": false
+      }
+    },
+    {
+      "name": "bridge_mode_requires_ip",
+      "description": "Bridge mode is not configured without an IP",
+      "input": {
+        "auth_mode": "bridge",
+        "bridge_ip": ""
+      },
+      "expected": {
+        "configured": false
+      }
+    }
+  ]
+}
