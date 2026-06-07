@@ -84,6 +84,7 @@ class BridgeWorker(QThread):
                  history:      List[Dict[str, Any]],
                  system_prompt: Optional[str] = None,
                  max_tokens:   int = 4096,
+                 api_key:      str = "",
                  parent=None) -> None:
         super().__init__(parent)
         import re as _re
@@ -95,6 +96,7 @@ class BridgeWorker(QThread):
             self._url = ""
         else:
             self._url = f"http://{_ip}:{BRIDGE_PORT}{BRIDGE_PATH}"
+        self._api_key = api_key
         self._payload = {
             "model":      model,
             "messages":   _build_openai_messages(history, system_prompt),
@@ -104,6 +106,7 @@ class BridgeWorker(QThread):
         self._cancel = False
         self._buffer: List[str] = []
         self._client: Optional[httpx.Client] = None
+        self.finish_reason: Optional[str] = None
 
     def cancel(self) -> None:
         self._cancel = True
@@ -120,11 +123,14 @@ class BridgeWorker(QThread):
         try:
             self._client = httpx.Client(timeout=httpx.Timeout(connect=10.0, read=600.0,
                                                               write=30.0, pool=10.0))
+            headers = {"Accept": "text/event-stream",
+                       "Content-Type": "application/json"}
+            if self._api_key:
+                headers["Authorization"] = f"Bearer {self._api_key}"
             with self._client.stream(
                 "POST", self._url,
                 json=self._payload,
-                headers={"Accept": "text/event-stream",
-                         "Content-Type": "application/json"},
+                headers=headers,
             ) as resp:
                 if resp.status_code != 200:
                     body = resp.read().decode("utf-8", errors="replace")[:500]
@@ -145,9 +151,16 @@ class BridgeWorker(QThread):
                         evt = json.loads(data)
                     except json.JSONDecodeError:
                         continue
+                    if "error" in evt:
+                        err_msg = evt["error"].get("message", "Unknown bridge error")
+                        self.failed.emit(f"Bridge error: {err_msg}")
+                        return
                     choices = evt.get("choices") or []
                     if not choices:
                         continue
+                    fr = choices[0].get("finish_reason")
+                    if fr:
+                        self.finish_reason = fr
                     delta = choices[0].get("delta") or {}
                     text = delta.get("content") or ""
                     if text:
@@ -228,6 +241,7 @@ class CustomGatewayWorker(QThread):
         self._cancel = False
         self._buffer: List[str] = []
         self._client: Optional[httpx.Client] = None
+        self.finish_reason: Optional[str] = None
 
     def cancel(self) -> None:
         self._cancel = True
@@ -267,9 +281,16 @@ class CustomGatewayWorker(QThread):
                         evt = json.loads(data)
                     except json.JSONDecodeError:
                         continue
+                    if "error" in evt:
+                        err_msg = evt["error"].get("message", "Unknown gateway error")
+                        self.failed.emit(f"Gateway error: {err_msg}")
+                        return
                     choices = evt.get("choices") or []
                     if not choices:
                         continue
+                    fr = choices[0].get("finish_reason")
+                    if fr:
+                        self.finish_reason = fr
                     delta = choices[0].get("delta") or {}
                     text = delta.get("content") or ""
                     if text:

@@ -84,6 +84,7 @@ class Settings:
     auth_mode:       str           = DEFAULT_AUTH
     claude_binary:   str           = "claude"
     bridge_ip:       str           = BRIDGE_DEFAULT_IP
+    bridge_api_key:  str           = ""
     compact_mode:    bool          = False
     response_length: str           = "normal"
     notify_sound:    bool          = False
@@ -143,6 +144,7 @@ def load() -> Settings:
             s.auth_mode        = section.get("auth_mode", DEFAULT_AUTH)
             s.claude_binary    = section.get("claude_binary", "claude")
             s.bridge_ip        = section.get("bridge_ip", BRIDGE_DEFAULT_IP)
+            s.bridge_api_key   = section.get("bridge_api_key", "")
             s.compact_mode     = section.getboolean("compact_mode", False)
             s.response_length  = section.get("response_length", "normal")
             s.notify_sound     = section.getboolean("notify_sound", False)
@@ -185,6 +187,7 @@ def save(settings: Settings) -> None:
         "auth_mode":        settings.auth_mode or DEFAULT_AUTH,
         "claude_binary":    settings.claude_binary or "claude",
         "bridge_ip":        settings.bridge_ip or BRIDGE_DEFAULT_IP,
+        "bridge_api_key":   settings.bridge_api_key or "",
         "compact_mode":     str(settings.compact_mode),
         "response_length":  settings.response_length or "normal",
         "notify_sound":     str(settings.notify_sound),
@@ -212,6 +215,7 @@ def save(settings: Settings) -> None:
     fd = os.open(str(CONFIG_PATH), os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
     with os.fdopen(fd, "w", encoding="utf-8") as f:
         cfg.write(f)
+    os.chmod(str(CONFIG_PATH), 0o600)
 
 
 def load_prompts() -> list:
@@ -358,7 +362,10 @@ def load_memory() -> list:
         return []
     import json
     try:
-        return json.loads(MEMORY_PATH.read_text(encoding="utf-8"))
+        data = json.loads(MEMORY_PATH.read_text(encoding="utf-8"))
+        if not isinstance(data, list):
+            return []
+        return [f for f in data if isinstance(f, dict) and "fact" in f]
     except (json.JSONDecodeError, OSError):
         return []
 

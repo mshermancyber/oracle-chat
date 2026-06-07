@@ -127,7 +127,8 @@ def _inject_code_headers(html: str, extracted: List[Tuple[str, str]],
 
 def get_code_blocks() -> List[str]:
     """Return code blocks extracted from the most recent render() call."""
-    return list(_code_blocks)
+    with _render_lock:
+        return list(_code_blocks)
 
 
 def render(text: str, block_offset: int = 0) -> str:

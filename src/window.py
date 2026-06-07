@@ -130,6 +130,13 @@ class SettingsDialog(QDialog):
         self.bridge_edit = QLineEdit()
         self.bridge_edit.setText(settings.bridge_ip or "127.0.0.1")
         al.addWidget(self.bridge_edit)
+        self.bridge_key_label = QLabel("Bridge API key (if bridge uses --api-key):")
+        al.addWidget(self.bridge_key_label)
+        self.bridge_key_edit = QLineEdit()
+        self.bridge_key_edit.setEchoMode(QLineEdit.Password)
+        self.bridge_key_edit.setText(settings.bridge_api_key or "")
+        self.bridge_key_edit.setPlaceholderText("Leave blank if bridge has no --api-key")
+        al.addWidget(self.bridge_key_edit)
         al.addWidget(QLabel("SearXNG URL (for /web search):"))
         self.searxng_edit = QLineEdit()
         self.searxng_edit.setText(settings.searxng_url or "")
@@ -256,7 +263,7 @@ class SettingsDialog(QDialog):
         name_label.setAlignment(Qt.AlignCenter)
         name_label.setStyleSheet("font-size:20px;font-weight:700;")
         abl.addWidget(name_label)
-        ver_label = QLabel("v1.0.0 — Native Linux AI chat client")
+        ver_label = QLabel("v1.1.0 — Native Linux AI chat client")
         ver_label.setAlignment(Qt.AlignCenter)
         ver_label.setStyleSheet("color:#94A3B8;font-size:13px;")
         abl.addWidget(ver_label)
@@ -309,6 +316,8 @@ class SettingsDialog(QDialog):
         self.binary_edit.setVisible(is_cc)
         self.bridge_label.setVisible(is_bridge)
         self.bridge_edit.setVisible(is_bridge)
+        self.bridge_key_label.setVisible(is_bridge)
+        self.bridge_key_edit.setVisible(is_bridge)
         self.relay_warning.setVisible(is_cc or is_bridge)
         for w in (self.custom_provider_label, self.custom_provider_picker,
                   self.custom_url_label, self.custom_url_edit,
@@ -329,6 +338,7 @@ class SettingsDialog(QDialog):
             auth_mode=self.auth_picker.currentData() or AUTH_API,
             claude_binary=self.binary_edit.text().strip() or "claude",
             bridge_ip=self.bridge_edit.text().strip() or "127.0.0.1",
+            bridge_api_key=self.bridge_key_edit.text().strip(),
         )
         s.auto_continue = self.auto_continue_cb.isChecked()
         s.auto_retry = self.auto_retry_cb.isChecked()
@@ -944,11 +954,18 @@ class MainWindow(QMainWindow):
         if self._streaming_worker and self._streaming_worker.isRunning():
             self._streaming_worker.cancel()
             self._streaming_worker.wait(2000)
-        args = [sys.executable] + sys.argv
+        exe = sys.executable
+        if not exe or not os.path.isfile(exe):
+            QMessageBox.warning(self, "Restart", "Cannot determine Python executable. Please restart manually.")
+            return
+        args = [exe] + sys.argv
         app = QApplication.instance()
         app.quit()
         app.processEvents()
-        os.execv(sys.executable, args)
+        try:
+            os.execv(exe, args)
+        except OSError:
+            pass
 
     def _update_custom_model_in_picker(self) -> None:
         if self.settings.auth_mode == AUTH_CUSTOM and self.settings.custom_model:
@@ -1522,7 +1539,7 @@ class MainWindow(QMainWindow):
         elif url.scheme() == "file" and url.toLocalFile().lower().endswith(
                 (".png", ".jpg", ".jpeg", ".gif", ".webp")):
             self._show_image_lightbox(url.toLocalFile())
-        else:
+        elif url.scheme() in ("http", "https", "mailto"):
             QDesktopServices.openUrl(url)
 
     # ── Text-to-speech (voice response) ─────────────────────────────────
@@ -1765,10 +1782,11 @@ class MainWindow(QMainWindow):
         if index < 0 or index >= len(blocks):
             return
         code = blocks[index]
-        preview = code[:200] + ("..." if len(code) > 200 else "")
+        preview = code[:500] + ("..." if len(code) > 500 else "")
         if QMessageBox.question(
             self, "Run code?",
-            f"Execute this code as Python?\n\n{preview}\n\nThis runs with your full user permissions.",
+            f"Execute this code as Python?\n\n{preview}\n\n"
+            f"[{len(code)} chars total] This runs with your full user permissions.",
             QMessageBox.Yes | QMessageBox.No, QMessageBox.No
         ) != QMessageBox.Yes:
             return
@@ -2953,7 +2971,8 @@ class MainWindow(QMainWindow):
             return
         try:
             pattern = re.compile(arg.strip(), re.IGNORECASE)
-        except re.error as e:
+            _redos_test = pattern.search("a" * 1000)
+        except (re.error, RecursionError) as e:
             self._show_system_message(f"Invalid regex: {e}")
             return
         messages = db.get_messages(self._current_chat_id)
@@ -3439,6 +3458,10 @@ class MainWindow(QMainWindow):
         url = self.settings.searxng_url.rstrip("/")
         if not url:
             return []
+        parsed = urllib.parse.urlparse(url)
+        if parsed.scheme not in ("http", "https") or not parsed.netloc:
+            self._show_system_message("Invalid SearXNG URL: must use http:// or https://")
+            return []
         params = urllib.parse.urlencode({
             "q": query, "format": "json", "categories": "general",
             "language": "en", "pageno": "1",
@@ -3759,7 +3782,10 @@ class MainWindow(QMainWindow):
     def _on_preview_html(self, index: int) -> None:
         blocks = getattr(self, "_all_code_blocks", [])
         if 0 <= index < len(blocks):
-            safe_html = blocks[index].replace("<script", "<!-- script").replace("</script", "<!-- /script")
+            safe_html = re.sub(r'<\s*script', '<!-- script', blocks[index], flags=re.IGNORECASE)
+            safe_html = re.sub(r'<\s*/\s*script', '<!-- /script', safe_html, flags=re.IGNORECASE)
+            safe_html = re.sub(r'\bon\w+\s*=', 'data-blocked=', safe_html, flags=re.IGNORECASE)
+            safe_html = re.sub(r'<\s*iframe', '<!-- iframe', safe_html, flags=re.IGNORECASE)
             self.split_view.setHtml(safe_html, QUrl("about:blank"))
             self.split_view.setVisible(True)
 
@@ -3767,7 +3793,9 @@ class MainWindow(QMainWindow):
     def _on_citation(self, index: int) -> None:
         sources = getattr(self, "_citation_sources", [])
         if 1 <= index <= len(sources):
-            QDesktopServices.openUrl(QUrl(sources[index - 1]))
+            url = QUrl(sources[index - 1])
+            if url.scheme() in ("http", "https"):
+                QDesktopServices.openUrl(url)
 
     def _slash_help(self) -> None:
         self._show_system_message(
@@ -3826,18 +3854,19 @@ class MainWindow(QMainWindow):
             return text
         context_parts = []
         for fpath in matches:
+            safe_path = fpath.replace('"', '\\"')
             p = Path(fpath)
             try:
                 if p.stat().st_size > _MAX_FILE_INLINE_BYTES:
                     context_parts.append(
-                        f'<file path="{fpath}">\n[File too large — {p.stat().st_size:,} bytes, '
+                        f'<file path="{safe_path}">\n[File too large — {p.stat().st_size:,} bytes, '
                         f'max {_MAX_FILE_INLINE_BYTES:,}]\n</file>'
                     )
                     continue
                 content = p.read_text(encoding="utf-8", errors="replace")
-                context_parts.append(f'<file path="{fpath}">\n{content}\n</file>')
+                context_parts.append(f'<file path="{safe_path}">\n{content}\n</file>')
             except OSError as e:
-                context_parts.append(f'<file path="{fpath}">\n[Error reading file: {e}]\n</file>')
+                context_parts.append(f'<file path="{safe_path}">\n[Error reading file: {e}]\n</file>')
         return "\n".join(context_parts) + "\n\n" + text
 
     # ── Send / stream ────────────────────────────────────────────────────
@@ -4001,7 +4030,8 @@ class MainWindow(QMainWindow):
             if proj_files:
                 proj_ctx = f"Project '{self.settings.active_project}' files:\n"
                 for fpath, content in list(proj_files.items())[:5]:
-                    proj_ctx += f"\n<file path=\"{fpath}\">\n{content[:5000]}\n</file>\n"
+                    safe_fpath = fpath.replace('"', '\\"')
+                    proj_ctx += f"\n<file path=\"{safe_fpath}\">\n{content[:5000]}\n</file>\n"
                 system_prompt = f"{system_prompt}\n\n{proj_ctx}" if system_prompt else proj_ctx
         # Apply persona
         if self.settings.persona and self.settings.persona in PERSONAS:
@@ -4051,6 +4081,7 @@ class MainWindow(QMainWindow):
                 history=api_history,
                 system_prompt=system_prompt,
                 max_tokens=self.settings.max_tokens,
+                api_key=self.settings.bridge_api_key,
                 parent=self,
             )
         elif self.settings.auth_mode == AUTH_CUSTOM:
@@ -4102,14 +4133,20 @@ class MainWindow(QMainWindow):
     def _on_stream_ok(self, full_text: str) -> None:
         cid = self._streaming_chat_id or self._current_chat_id
         reason = "complete"
+        worker_fr = getattr(self._streaming_worker, "finish_reason", None)
         if cid is not None:
             db.update_last_message(cid, full_text)
             msgs = db.get_messages(cid)
             if msgs and msgs[-1].role == "assistant":
                 if self._stream_start_time:
                     db.set_response_time(msgs[-1].id, time.monotonic() - self._stream_start_time)
-                reason = "max_tokens" if (full_text and len(full_text) >= self.settings.max_tokens * 4
-                    and not full_text.rstrip().endswith((".", "!", "?", "```", ")"))) else "complete"
+                if worker_fr == "length":
+                    reason = "max_tokens"
+                elif worker_fr and worker_fr != "stop":
+                    reason = worker_fr
+                elif full_text and len(full_text) >= self.settings.max_tokens * 4 \
+                        and not full_text.rstrip().endswith((".", "!", "?", "```", ")")):
+                    reason = "max_tokens"
                 db.set_stop_reason(msgs[-1].id, reason)
         old_text = self._last_regen_old_text
         self._last_regen_old_text = None
