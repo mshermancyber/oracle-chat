@@ -1,0 +1,65 @@
+{
+  "description": "Security test cases for Oracle Chat",
+  "tests": [
+    {
+      "name": "path_traversal_project_name",
+      "input": {"project_name": "../../etc/passwd"},
+      "expected": "Name sanitized to 'etcpasswd', no file written outside projects dir"
+    },
+    {
+      "name": "bridge_ip_injection",
+      "input": {"bridge_ip": "evil.com/payload#"},
+      "expected": "Rejected by regex validation, worker emits failed signal"
+    },
+    {
+      "name": "custom_url_ftp_scheme",
+      "input": {"custom_api_url": "ftp://evil.com"},
+      "expected": "Rejected, _invalid_url set, run() emits failed"
+    },
+    {
+      "name": "custom_url_no_scheme",
+      "input": {"custom_api_url": "localhost:11434"},
+      "expected": "Accepted, http:// prefixed automatically"
+    },
+    {
+      "name": "highlight_html_escape",
+      "input": {"highlight": "red;\"><script>alert(1)</script><div style=\""},
+      "expected": "Value HTML-escaped in style attribute, no injection"
+    },
+    {
+      "name": "espeak_flag_injection",
+      "input": {"content": "-f /etc/passwd"},
+      "expected": "-- separator prevents flag interpretation"
+    },
+    {
+      "name": "code_execution_requires_confirmation",
+      "description": "Clicking Run on a code block shows confirmation dialog before executing",
+      "expected": "QMessageBox.question shown with code preview"
+    },
+    {
+      "name": "config_file_permissions",
+      "expected": "config.ini created with mode 0600 via os.open atomic create"
+    },
+    {
+      "name": "like_wildcard_escaping",
+      "input": {"search_query": "50%"},
+      "expected": "% escaped as \\%, only literal matches returned"
+    },
+    {
+      "name": "claude_binary_validation",
+      "input": {"claude_binary": "/usr/bin/python3"},
+      "expected": "Rejected — filename must contain 'claude'"
+    },
+    {
+      "name": "schedule_overflow",
+      "input": {"command": "/schedule 9999h hello"},
+      "expected": "Rejected with 'Maximum schedule delay is 24 hours' message"
+    },
+    {
+      "name": "grep_regex_dos",
+      "input": {"command": "/grep " },
+      "description": "Regex longer than 200 chars",
+      "expected": "Rejected with 'Regex too long' message"
+    }
+  ]
+}

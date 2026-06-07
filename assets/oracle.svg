@@ -1,0 +1,117 @@
+<svg width="680" height="680" viewBox="0 0 680 680" role="img" xmlns="http://www.w3.org/2000/svg">
+  <title>Oracle glowing coin</title>
+  <desc>Golden glowing medallion coin with Oracle in cursive script, surrounded by amber light rays on a dark navy background</desc>
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Great+Vibes&amp;display=swap');
+      .cursive { font-family: 'Great Vibes', 'Palatino Linotype', cursive; }
+    </style>
+    <radialGradient id="bg" cx="50%" cy="50%" r="70%">
+      <stop offset="0%" stop-color="#1a2d50"/>
+      <stop offset="55%" stop-color="#0c1828"/>
+      <stop offset="100%" stop-color="#050c18"/>
+    </radialGradient>
+    <radialGradient id="halo" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ffd040" stop-opacity="0.95"/>
+      <stop offset="25%" stop-color="#ff9900" stop-opacity="0.7"/>
+      <stop offset="50%" stop-color="#ff6000" stop-opacity="0.35"/>
+      <stop offset="75%" stop-color="#cc3300" stop-opacity="0.1"/>
+      <stop offset="100%" stop-color="#880000" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="coreGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#fffbe0" stop-opacity="0.6"/>
+      <stop offset="40%" stop-color="#ffcc40" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#ff8800" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="ring" x1="12%" y1="8%" x2="88%" y2="92%">
+      <stop offset="0%" stop-color="#f8e8b0"/>
+      <stop offset="12%" stop-color="#d4a030"/>
+      <stop offset="28%" stop-color="#f0d068"/>
+      <stop offset="45%" stop-color="#806018"/>
+      <stop offset="62%" stop-color="#e8c050"/>
+      <stop offset="78%" stop-color="#b88828"/>
+      <stop offset="92%" stop-color="#f0d878"/>
+      <stop offset="100%" stop-color="#a07020"/>
+    </linearGradient>
+    <radialGradient id="face" cx="36%" cy="28%" r="75%">
+      <stop offset="0%" stop-color="#fffef8"/>
+      <stop offset="20%" stop-color="#fff4cc"/>
+      <stop offset="48%" stop-color="#f8d870"/>
+      <stop offset="72%" stop-color="#d4a030"/>
+      <stop offset="90%" stop-color="#b07820"/>
+      <stop offset="100%" stop-color="#906010"/>
+    </radialGradient>
+    <radialGradient id="shimmer" cx="32%" cy="25%" r="55%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.85"/>
+      <stop offset="35%" stop-color="#fff8e0" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="680" height="680" fill="url(#bg)"/>
+  <circle cx="340" cy="340" r="330" fill="url(#halo)"/>
+  <circle cx="340" cy="340" r="200" fill="url(#coreGlow)"/>
+
+  <!-- Long primary rays -->
+  <g fill="#ffaa00" opacity="0.72">
+    <polygon points="638,340 490,333 490,347" transform="rotate(0,340,340)"/>
+    <polygon points="638,340 490,333 490,347" transform="rotate(45,340,340)"/>
+    <polygon points="638,340 490,333 490,347" transform="rotate(90,340,340)"/>
+    <polygon points="638,340 490,333 490,347" transform="rotate(135,340,340)"/>
+    <polygon points="638,340 490,333 490,347" transform="rotate(180,340,340)"/>
+    <polygon points="638,340 490,333 490,347" transform="rotate(225,340,340)"/>
+    <polygon points="638,340 490,333 490,347" transform="rotate(270,340,340)"/>
+    <polygon points="638,340 490,333 490,347" transform="rotate(315,340,340)"/>
+  </g>
+
+  <!-- Medium secondary rays -->
+  <g fill="#ffbb30" opacity="0.42">
+    <polygon points="568,340 490,336 490,344" transform="rotate(22.5,340,340)"/>
+    <polygon points="568,340 490,336 490,344" transform="rotate(67.5,340,340)"/>
+    <polygon points="568,340 490,336 490,344" transform="rotate(112.5,340,340)"/>
+    <polygon points="568,340 490,336 490,344" transform="rotate(157.5,340,340)"/>
+    <polygon points="568,340 490,336 490,344" transform="rotate(202.5,340,340)"/>
+    <polygon points="568,340 490,336 490,344" transform="rotate(247.5,340,340)"/>
+    <polygon points="568,340 490,336 490,344" transform="rotate(292.5,340,340)"/>
+    <polygon points="568,340 490,336 490,344" transform="rotate(337.5,340,340)"/>
+  </g>
+
+  <!-- Fine tertiary rays -->
+  <g fill="#ffe060" opacity="0.22">
+    <polygon points="510,340 490,338 490,342" transform="rotate(11.25,340,340)"/>
+    <polygon points="510,340 490,338 490,342" transform="rotate(33.75,340,340)"/>
+    <polygon points="510,340 490,338 490,342" transform="rotate(56.25,340,340)"/>
+    <polygon points="510,340 490,338 490,342" transform="rotate(78.75,340,340)"/>
+    <polygon points="510,340 490,338 490,342" transform="rotate(101.25,340,340)"/>
+    <polygon points="510,340 490,338 490,342" transform="rotate(123.75,340,340)"/>
+    <polygon points="510,340 490,338 490,342" transform="rotate(146.25,340,340)"/>
+    <polygon points="510,340 490,338 490,342" transform="rotate(168.75,340,340)"/>
+    <polygon points="510,340 490,338 490,342" transform="rotate(191.25,340,340)"/>
+    <polygon points="510,340 490,338 490,342" transform="rotate(213.75,340,340)"/>
+    <polygon points="510,340 490,338 490,342" transform="rotate(236.25,340,340)"/>
+    <polygon points="510,340 490,338 490,342" transform="rotate(258.75,340,340)"/>
+    <polygon points="510,340 490,338 490,342" transform="rotate(281.25,340,340)"/>
+    <polygon points="510,340 490,338 490,342" transform="rotate(303.75,340,340)"/>
+    <polygon points="510,340 490,338 490,342" transform="rotate(326.25,340,340)"/>
+    <polygon points="510,340 490,338 490,342" transform="rotate(348.75,340,340)"/>
+  </g>
+
+  <!-- Coin ring and face -->
+  <circle cx="340" cy="340" r="163" fill="url(#ring)"/>
+  <circle cx="340" cy="340" r="152" fill="url(#face)"/>
+  <circle cx="340" cy="340" r="152" fill="url(#shimmer)"/>
+
+  <!-- Specular highlights on ring -->
+  <path d="M 212 258 A 148 148 0 0 1 335 196" stroke="#fffde8" stroke-width="14" fill="none" stroke-linecap="round" opacity="0.55"/>
+  <path d="M 222 268 A 130 130 0 0 1 330 210" stroke="#ffffff" stroke-width="5" fill="none" stroke-linecap="round" opacity="0.4"/>
+
+  <!-- Oracle cursive text -->
+  <text x="340" y="356" text-anchor="middle" dominant-baseline="middle"
+        class="cursive" font-size="78" fill="#1e0e04">Oracle</text>
+
+  <!-- Decorative flourish -->
+  <text x="340" y="394" text-anchor="middle"
+        font-family="Georgia, serif" font-size="11"
+        font-weight="400" fill="#3a1e06" letter-spacing="7" opacity="0.75">&#x2736; &#x2736; &#x2736;</text>
+</svg>

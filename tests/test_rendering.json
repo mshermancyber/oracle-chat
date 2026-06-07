@@ -1,0 +1,52 @@
+{
+  "description": "Rendering test cases for Oracle Chat markdown renderer",
+  "tests": [
+    {
+      "name": "fenced_code_block_with_copy_apply_run",
+      "input": "```python\nprint('hello')\n```",
+      "expected": "HTML contains oracle://copy/0, oracle://apply/0, oracle://run/0 links"
+    },
+    {
+      "name": "html_block_has_preview_link",
+      "input": "```html\n<h1>Hello</h1>\n```",
+      "expected": "HTML contains oracle://preview/0 link"
+    },
+    {
+      "name": "latex_inline_styled",
+      "input": "The value $x^2$ is squared",
+      "expected": "HTML contains serif font and #FBBF24 color for math expression"
+    },
+    {
+      "name": "latex_block_styled",
+      "input": "$$E = mc^2$$",
+      "expected": "HTML contains centered div with serif font"
+    },
+    {
+      "name": "thinking_blocks_rendered",
+      "input": "<thinking>internal reasoning</thinking>",
+      "expected": "HTML contains 'THINKING' header with styled div"
+    },
+    {
+      "name": "citation_links",
+      "setup": "set_citation_sources(['http://example.com'])",
+      "input": "See [1] for details",
+      "expected": "HTML contains oracle://citation/1 link"
+    },
+    {
+      "name": "indented_code_no_headers",
+      "input": "    indented code",
+      "expected": "No oracle:// links injected for indented (non-fenced) code"
+    },
+    {
+      "name": "block_offset_preserved",
+      "input": "```python\nx=1\n```",
+      "offset": 5,
+      "expected": "Links use oracle://copy/5, not oracle://copy/0"
+    },
+    {
+      "name": "empty_input",
+      "input": "",
+      "expected": "Returns empty string, get_code_blocks() returns []"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=Oracle
+GenericName=AI Chat
+Comment=Native Linux AI chat client — Claude, ChatGPT, Gemini, Grok, Ollama, and more
+Exec=@LAUNCHER@ %U
+Icon=oracle
+Terminal=false
+Categories=Development;
+Keywords=claude;anthropic;chat;ai;copilot;assistant;llm;
+StartupWMClass=Oracle
+StartupNotify=true
